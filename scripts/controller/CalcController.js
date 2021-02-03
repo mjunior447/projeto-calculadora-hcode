@@ -1,6 +1,9 @@
 class CalcController {
 
     constructor() {
+        this._audioOn = false;
+        this._audio = new Audio('click.mp3');
+
         this._operation = [];
         this._displayCalcEl = document.querySelector('#display');
         this._timeEl = document.querySelector('#hora');
@@ -18,10 +21,26 @@ class CalcController {
             this.setDisplayDateTime();
         }, 1000);
 
-        this.setLastNumerToDisplay();
-        
+        this.setLastNumerToDisplay();        
         this.pasteFromClipboard();
 
+        // liga o áudio da calculadora com dois cliques no botão 'AC'
+        document.querySelectorAll('.btn-ac').forEach(btn => {
+            btn.addEventListener('dblclick', e => {
+                this.toggleAudio();
+            })
+        });
+    }
+
+    toggleAudio() {
+        this._audioOn = !this._audioOn;
+    }
+
+    playAudio() {
+         if (this._audioOn) {
+            this._audio.currentTime = 0;
+            this._audio.play();
+         }
     }
 
     // função para copiar texto do display
@@ -184,6 +203,8 @@ class CalcController {
     // o botão "CE" significa "Clear Entry (limpar última entrada)"
     execBtn(textBtn) {
 
+        this.playAudio();
+
         switch(textBtn) {
             case 'ac':
                 this.allClear();
@@ -258,7 +279,8 @@ class CalcController {
 
     initKeyboard() {
         document.addEventListener('keyup', e => {
-            console.log(e.key);
+
+            this.playAudio();
 
             switch(e.key) {
                 case 'Escape':
