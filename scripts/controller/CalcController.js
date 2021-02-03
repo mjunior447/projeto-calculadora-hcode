@@ -6,7 +6,6 @@ class CalcController {
         this._timeEl = document.querySelector('#hora');
         this._dateEl = document.querySelector('#data');
         this._locale = 'pt-br';
-        //this._currentDate;
         this.initialize();
         this.initButtonEvents();
     }
@@ -83,22 +82,12 @@ class CalcController {
         }
     }
 
-    // insertDot() {
-    //     // caso o ponto não exista no último número
-    //     if (!(this.getLastElement().toString().indexOf('.') >= -1)) {
-    //         let newOperator = this._operation.pop().toString() + '.';
-    //         this._operation.push(newOperator);
-    //         this.setLastNumerToDisplay();
-    //     } else {
-    //         console.log('aqui')
-    //     }
-    // }
-
     pushOperation(value) {
         if (this._operation.length > 2) {
             this._operation = [this.calculate()];
         }
 
+        // faz o cálculo de porcentagem
         if (value == '%') {
             let result = this.getLastElement();
             result /= 100;
@@ -140,16 +129,33 @@ class CalcController {
                 this.pushOperation(op);
             } else {
                 let newOp = this.getLastElement().toString() + op.toString();
-                this.setLastElement(parseFloat(newOp));
+                this.setLastElement(newOp);
                 this.setLastNumerToDisplay();
             }
 
         }
     }
 
+    // casos de uso do ponto:
+    // 1 - não há nada no display (0 por padrão) e digito o ponto; o resultado deve ser '0.'
+    // 2 - caso a última coisa digitada seja um operador (exemplo: "2+"),
+    //     ao digitar o ponto, deve-se inserir, após o "2+", um "0." e esperar que
+    //     o usuário termine de digitar o número
+    // 3 - caso o último elemento no display seja um número que não 0,
+    //     deve-se inserir o ponto após esse número
     addDot() {
-        let lastOperator = this.getLastOperator();
-        console.log(lastOperator);
+        let lastElement = this.getLastElement();
+
+        if (lastElement.toString().indexOf('.') > -1) return;
+
+        if (this.isOperator(this.getLastElement()) || !this.getLastElement()) {
+            console.log ('hora de inserir o 0. algo');
+            this.pushOperation('0.');
+        } else {
+            this.setLastElement(lastElement.toString() + '.');
+        }
+
+        this.setLastNumerToDisplay();
     }
 
     // adiciona a funcionalidade de cada botão
@@ -204,7 +210,7 @@ class CalcController {
             case '7':
             case '8':
             case '9':
-                this.addOperation(parseInt(textBtn));
+                this.addOperation(textBtn);
                 break;
 
             default:
